@@ -40,8 +40,8 @@ int main(int argc, char * * argv)
         return EXIT_FAILURE;
     }
     TreeNode * root2 = NULL;
-    root2 = buildTree_node(Stack, root2, fptr);
-    fclose(fptr);
+    root2 = buildTree_node(Stack, root2, fptr2);
+    fclose(fptr2);
     root2 = reroot(root2, false);
     FILE * outptr2 = fopen(argv[3], "w");
     if(outptr2 == NULL)
@@ -50,6 +50,24 @@ int main(int argc, char * * argv)
     }
     write_tree_to_file(outptr2, root2);
     fclose(outptr2);
+    destroy_tree(root2);
+
+    // Procedure 3
+    FILE * fptr3 = fopen(argv[1], "r");
+    if(fptr3 == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+    TreeNode * root3 = NULL;
+    root3 = buildTree_node(Stack, root3, fptr3);
+    //write_size_to_file(root3);
+    fclose(fptr3);
+    reroot3(root3, true, true, true, true);
+    printf("\n");
+    write_size_to_file(root3);
+    destroy_tree(root3);
+    Stack_Dyn_Deinit(&Stack);
+
     
     return EXIT_SUCCESS;
 }

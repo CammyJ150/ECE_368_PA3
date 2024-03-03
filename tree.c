@@ -94,6 +94,170 @@ void write_tree_to_file(FILE * outptr, TreeNode * tn)
     write_tree_to_file(outptr, tn -> left);
     write_tree_to_file(outptr, tn -> right);
 }
+TreeNode * reroot3(TreeNode * root, bool left_right, bool right_left, bool left_left, bool right_right)
+{
+    TreeNode * new_root = root;
+    if(new_root->right->non_leaf_node == NULL || new_root->left->non_leaf_node == NULL)
+    {
+        printf("STOP\n");
+        calc_size(new_root);
+        return new_root;
+    }
+    if(left_right == true)
+    {
+        //For left_right the only reroots you can do is RL and RR
+        new_root = reroot_node(new_root, true, false, false, false); // LR
+        TreeNode * new_root_temp = reroot3(new_root, false, true, false, false); // RL
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root_temp, false, true, false, false); // UNDO RL
+        }
+        new_root_temp = reroot3(new_root, false, false, false, true); // RR 
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, false, false, true, false); // UNDO RR by doing LL
+        }
+        new_root = reroot_node(new_root, true, false, false, false); // UNDO LR
+        
+    }
+    if(right_left == true)
+    {
+        //For right_left the only reroots you can do is LL and LR
+        new_root = reroot_node(new_root, false, true, false, false);
+        TreeNode * new_root_temp = reroot3(new_root, false, false, true, false); // LL
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, false, false, false, true); // UNDO LL by doing RR
+        }
+        new_root_temp = reroot3(new_root, true, false, false, false); // LR
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, true, false, false, false); // UNDO LR
+        }
+        new_root = reroot_node(new_root, false, true, false, false); // UNDO RL 
+
+    }
+    if(left_left == true)
+    {
+        //For left_left the only reroots you can do is LL and LR
+        new_root = reroot_node(new_root, false, false, true, false);
+        TreeNode * new_root_temp = reroot3(new_root, false, false, true, false); // LL
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, false, false, false, true); // UNDO LL by doing RR
+        }
+        new_root_temp = reroot3(new_root, true, false, false, false); // LR
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, true, false, false, false); // UNDO LR
+        }
+        new_root = reroot_node(new_root, false, false, false, true); // UNDO LL by doing RR
+    }
+    if(right_right == true)
+    {
+        //For right_right the only reroots you can do is RL and RR
+        new_root = reroot_node(new_root, false, false, false, true);
+        TreeNode * new_root_temp = reroot3(new_root, false, true, false, false); // RL
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, false, true, false, false); // UNDO RL
+        }
+        new_root_temp = reroot3(new_root, false, false, false, true); // RR
+        if(new_root_temp != new_root) // Need to check if the reroot actually happened
+        {
+            new_root = reroot_node(new_root, false, false, true, false); // UNDO RR by doing LL
+        }
+        new_root = reroot_node(new_root, false, false, true, false); //UNDO RR by doing LL
+    }
+    return new_root;
+    
+}
+TreeNode * reroot_node(TreeNode * root, bool left_right, bool right_left, bool left_left, bool right_right)
+{
+    TreeNode * new_root = root;
+    if(left_right == true)
+    {
+        new_root = root->left;
+        root->left = new_root->left;
+        new_root->left = root;
+    }
+    else if(right_left == true)
+    {
+        new_root = root->right;
+        root->right = new_root->right;
+        new_root->right = root;
+    }
+    else if(left_left == true)
+    {
+        new_root = root->left;
+        root->left = new_root->right;
+        new_root->right = root;
+
+    }
+    else if(right_right == true)
+    {
+        new_root = root->right;
+        root->right = new_root->left;
+        new_root->left = root;
+    }
+    return new_root;
+}
+/*
+Need to determine the size of the box.  If the non_leaf_node is
+V then the x sizes need to be added together and the y sizes need
+to be compared to each other to see which one is largest.  If it is
+H then the x sizes need to be compared to gether to see which one is the largest
+and the y sizes are added together.*/
+void calc_size(TreeNode * tn)
+{
+  if(tn == NULL)
+  {
+    return;
+  }
+  calc_size(tn->left);
+  calc_size(tn->right);
+  if(tn->non_leaf_node == 'H')
+  {
+    tn->height = tn->left->height + tn->right->height;
+    if(tn->left->width > tn->right->width)
+    {
+      tn->width = tn->left->width;
+    }
+    else
+    {
+      tn->width = tn->right->width;
+    }
+  }
+  else if(tn->non_leaf_node == 'V')
+  {
+    tn->width = tn->left->width + tn->right->width;
+    if(tn->left->height > tn->right->height)
+    {
+      tn->height = tn->left->height;
+    }
+    else
+    {
+      tn->height = tn->right->height;
+    }
+  }
+}
+void write_size_to_file(TreeNode * tn)
+{
+    if(tn == NULL)
+    {
+        return;
+    }
+    if(tn->non_leaf_node == 'H' || tn->non_leaf_node == 'V')
+    {
+      printf("%c(%d,%d)\n", tn->non_leaf_node, tn->width, tn->height);
+    }
+    else
+    {
+      printf("%d(%d,%d)\n", tn->node_val, tn->width, tn->height);
+    }
+    write_size_to_file(tn -> left);
+    write_size_to_file(tn -> right);
+}
 void Stack_Dyn_Deinit(Stack_Dyn_t * S_Ptr)
 { /* deallocate memory of stack */
     free(S_Ptr->tn);
