@@ -10,6 +10,8 @@ typedef struct tnode
     int node_val;
     int width;
     int height;
+    int new_width;
+    int new_height;
     struct tnode * left;
     struct tnode * right;
 } TreeNode;
@@ -28,9 +30,11 @@ TreeNode * create_tree_node(int non_l, int node_v, int h, int w, TreeNode * r, T
 TreeNode * buildTree_node(Stack_Dyn_t stack, TreeNode * tn, FILE * fptr);
 TreeNode * reroot(TreeNode * root, bool left_right);
 void write_tree_to_file(FILE * outptr, TreeNode * tn);
-void write_size_to_file(TreeNode * tn);
+void write_size_to_file(FILE * outptr, TreeNode * tn);
 void destroy_tree(TreeNode * tn);
 TreeNode * reroot_node(TreeNode * root, bool left_right, bool right_left, bool left_left, bool right_right);
+void calc_size_orig(TreeNode * tn);
+void calc_size_node(TreeNode * tn);
 
 int Stack_Dyn_Init(Stack_Dyn_t *S_Ptr, int Initial_Size);
 void Stack_Dyn_Deinit(Stack_Dyn_t *S_Ptr);
